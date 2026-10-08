@@ -20,6 +20,7 @@ jobs:
         uses: httpdss/structkit-action@v1
         with:
           command: generate
+          struct_file: .structkit.yaml
           dry_run: true
           diff: true
           fail_on_diff: true

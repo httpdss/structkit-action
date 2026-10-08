@@ -1,0 +1,3 @@
+files:
+  - fixture-legacy.txt:
+      content: "Hello from legacy .struct.yaml fixture!"

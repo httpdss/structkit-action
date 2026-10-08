@@ -11,9 +11,9 @@ inputs:
     required: false
     default: 'validate'
   struct_file:
-    description: 'Path to the StructKit configuration file'
+    description: 'Path to the StructKit configuration file. Leave empty to auto-detect: .structkit.yaml if present, otherwise legacy .struct.yaml. Fails if neither exists. Explicit paths are used as-is.'
     required: false
-    default: '.struct.yaml'
+    default: ''
   output_dir:
     description: 'Output directory for generated files'
     required: false
@@ -27,7 +27,7 @@ inputs:
     required: false
     default: 'false'
   no_hooks:
-    description: 'Disable hooks during execution (check if your StructKit version supports this flag)'
+    description: 'Disable hooks during execution (requires StructKit >= 3.3.0)'
     required: false
     default: 'false'
   non_interactive:
@@ -84,6 +84,16 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Resolve struct file
+      id: resolve-struct-file
+      shell: bash
+      env:
+        INPUT_STRUCT_FILE: ${{ inputs.struct_file }}
+      run: |
+        STRUCT_FILE="$(bash "${GITHUB_ACTION_PATH}/scripts/resolve-struct-file.sh" "${INPUT_STRUCT_FILE}")"
+        echo "Using struct file: ${STRUCT_FILE}"
+        echo "struct_file=${STRUCT_FILE}" >> "${GITHUB_OUTPUT}"
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -117,6 +127,8 @@ runs:
     - name: Run StructKit
       id: run-structkit
       shell: bash
+      env:
+        STRUCT_FILE: ${{ steps.resolve-struct-file.outputs.struct_file }}
       run: |
         set +e
 
@@ -158,9 +170,9 @@ runs:
 
         # Add positional arguments for generate command
         if [[ "$COMMAND" == "generate" ]]; then
-          ARGS+=("${{ inputs.struct_file }}" "${{ inputs.output_dir }}")
+          ARGS+=("${STRUCT_FILE}" "${{ inputs.output_dir }}")
         elif [[ "$COMMAND" == "validate" ]]; then
-          ARGS+=("${{ inputs.struct_file }}")
+          ARGS+=("${STRUCT_FILE}")
         fi
 
         # Run the command

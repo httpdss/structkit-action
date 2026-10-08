@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
+      - '**.structkit.yaml'
       - '**.struct.yaml'
       - '.github/workflows/validate-pr.yml'
 
@@ -19,7 +20,7 @@ jobs:
         uses: httpdss/structkit-action@v1
         with:
           command: validate
-          struct_file: .struct.yaml
+          struct_file: .structkit.yaml
 
       - name: Comment on PR
         if: failure()
