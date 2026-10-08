@@ -70,7 +70,7 @@ jobs:
       - uses: httpdss/structkit-action@v1
         with:
           command: generate
-          struct_file: .struct.yaml
+          struct_file: .structkit.yaml
           output_dir: .
 
       - name: Commit changes
@@ -87,11 +87,11 @@ jobs:
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `command` | Command to run: `validate` or `generate` | No | `validate` |
-| `struct_file` | Path to the StructKit configuration file | No | `.struct.yaml` |
+| `struct_file` | Path to the StructKit configuration file. Leave empty to auto-detect `.structkit.yaml`, then legacy `.struct.yaml` | No | auto-detect |
 | `output_dir` | Output directory for generated files | No | `.` |
 | `dry_run` | Run in dry-run mode (preview changes without writing) | No | `false` |
 | `diff` | Show diff of changes (use with dry_run for drift detection) | No | `false` |
-| `no_hooks` | Disable hooks during execution (check if your StructKit version supports this flag) | No | `false` |
+| `no_hooks` | Disable hooks during execution (requires StructKit >= 3.3.0) | No | `false` |
 | `non_interactive` | Run in non-interactive mode (check if your StructKit version supports this flag) | No | `false` |
 | `structkit_version` | StructKit version to install (version number, `latest`, or git URL) | No | `latest` |
 | `structures_path` | Path to custom structures directory | No | `''` |
@@ -191,9 +191,9 @@ jobs:
     strategy:
       matrix:
         struct_file:
-          - .struct.yaml
-          - config/api.struct.yaml
-          - config/frontend.struct.yaml
+          - .structkit.yaml
+          - config/api.structkit.yaml
+          - config/frontend.structkit.yaml
     steps:
       - uses: actions/checkout@v7
       - uses: httpdss/structkit-action@v1
@@ -220,9 +220,13 @@ If you need automatic PR creation, use the [reusable workflow](https://github.co
 - Python 3.x (automatically installed by the action)
 - GitHub Actions runner with bash support
 
+## Configuration file
+
+The default project file is `.structkit.yaml`. If `struct_file` is omitted, the action uses `.structkit.yaml` when it exists, otherwise it falls back to legacy `.struct.yaml`. Set `struct_file` to an explicit path to skip auto-detection.
+
 ## Compatibility Note
 
-This action is designed to work with different versions of StructKit. Some command-line flags (`--no-hooks`, `--non-interactive`, `--diff`, `--dry-run`) may not be available in all versions. The action defaults to not using these flags unless explicitly enabled. Check your [StructKit version's documentation](https://github.com/httpdss/structkit) to confirm which flags are supported.
+This action is designed to work with different versions of StructKit. Some command-line flags (`--no-hooks`, `--non-interactive`, `--diff`, `--dry-run`) may not be available in all versions. `--no-hooks` requires StructKit >= 3.3.0. The action defaults to not using these flags unless explicitly enabled. Check your [StructKit version's documentation](https://github.com/httpdss/structkit) to confirm which flags are supported.
 
 ## How It Works
 

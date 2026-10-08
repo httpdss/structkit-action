@@ -1,0 +1,3 @@
+files:
+  - fixture-structkit.txt:
+      content: "Hello from .structkit.yaml fixture!"

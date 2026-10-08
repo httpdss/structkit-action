@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.structkit.yaml'
       - '.struct.yaml'
 
 jobs:
@@ -19,7 +20,7 @@ jobs:
         uses: httpdss/structkit-action@v1
         with:
           command: generate
-          struct_file: .struct.yaml
+          struct_file: .structkit.yaml
           structures_repository: myorg/my-custom-structures
           structures_repository_path: templates
           structures_repository_ref: v1.0.0
