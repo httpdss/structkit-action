@@ -16,6 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v1
+
       - name: Generate with custom structures
         uses: httpdss/structkit-action@v1
         with:

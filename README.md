@@ -4,6 +4,8 @@
 
 Companion to [StructKit](https://github.com/httpdss/structkit). Run `validate`, `generate`, or a dry-run drift check as a workflow step. Star the [core repo](https://github.com/httpdss/structkit).
 
+**Breaking change:** this action no longer installs Python or StructKit. Add [`httpdss/structkit-setup@v1`](https://github.com/httpdss/structkit-setup) first (see [CHANGELOG](CHANGELOG.md)).
+
 ## Features
 
 - 🔍 **Validate** structure definitions on every PR
@@ -11,7 +13,7 @@ Companion to [StructKit](https://github.com/httpdss/structkit). Run `validate`, 
 - 🔄 **Drift Detection** - detect when generated files don't match definitions
 - 🛡️ **Safe Defaults** - runs with `--no-hooks` and `--non-interactive` by default
 - 📦 **Custom Structures** - supports external structure repositories
-- 🎯 **Flexible Versioning** - install from PyPI, git, or specific versions
+- 🔧 **Bring your own StructKit** - install with [`httpdss/structkit-setup`](https://github.com/httpdss/structkit-setup) (or any other method) before this action runs
 
 ## Quick Start
 
@@ -26,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
       - uses: httpdss/structkit-action@v1
         with:
           command: validate
@@ -44,6 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
       - uses: httpdss/structkit-action@v1
         with:
           command: generate
@@ -66,6 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
 
       - uses: httpdss/structkit-action@v1
         with:
@@ -93,13 +98,11 @@ jobs:
 | `diff` | Show diff of changes (use with dry_run for drift detection) | No | `false` |
 | `no_hooks` | Disable hooks during execution (requires StructKit >= 3.3.0) | No | `false` |
 | `non_interactive` | Run in non-interactive mode (check if your StructKit version supports this flag) | No | `false` |
-| `structkit_version` | StructKit version to install (version number, `latest`, or git URL) | No | `latest` |
 | `structures_path` | Path to custom structures directory | No | `''` |
 | `structures_repository` | Custom structures repository to checkout (format: `owner/repo`) | No | `''` |
 | `structures_repository_path` | Path within structures_repository where structures are located | No | `structures` |
 | `structures_repository_ref` | Git ref (branch/tag/commit) to checkout from structures_repository | No | `main` |
 | `extra_args` | Additional arguments to pass to StructKit command | No | `''` |
-| `python_version` | Python version to use | No | `3.x` |
 | `fail_on_diff` | Fail the action if changes would be made (drift detection) | No | `false` |
 
 ## Outputs
@@ -127,27 +130,34 @@ The major version tag (`v1`) is maintained automatically, so users can always re
 
 ## Advanced Examples
 
-### Use Specific StructKit Version
+### Pin the StructKit version
+
+Version selection lives in [`httpdss/structkit-setup`](https://github.com/httpdss/structkit-setup), not this action:
 
 ```yaml
+- uses: httpdss/structkit-setup@v1
+  with:
+    structkit-version: "3.3.0"
 - uses: httpdss/structkit-action@v1
   with:
     command: validate
-    structkit_version: "1.2.3"
 ```
 
 ### Install from Git
 
 ```yaml
+- uses: httpdss/structkit-setup@v1
+  with:
+    structkit-version: "https://github.com/httpdss/structkit.git@main"
 - uses: httpdss/structkit-action@v1
   with:
     command: generate
-    structkit_version: "https://github.com/httpdss/structkit.git@main"
 ```
 
 ### Use Custom Structures Repository
 
 ```yaml
+- uses: httpdss/structkit-setup@v1
 - uses: httpdss/structkit-action@v1
   with:
     command: generate
@@ -159,6 +169,7 @@ The major version tag (`v1`) is maintained automatically, so users can always re
 ### Generate with Extra Arguments
 
 ```yaml
+- uses: httpdss/structkit-setup@v1
 - uses: httpdss/structkit-action@v1
   with:
     command: generate
@@ -168,6 +179,7 @@ The major version tag (`v1`) is maintained automatically, so users can always re
 ### Use Action Outputs
 
 ```yaml
+- uses: httpdss/structkit-setup@v1
 - uses: httpdss/structkit-action@v1
   id: structkit
   with:
@@ -196,6 +208,7 @@ jobs:
           - config/frontend.structkit.yaml
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
       - uses: httpdss/structkit-action@v1
         with:
           command: validate
@@ -217,7 +230,7 @@ If you need automatic PR creation, use the [reusable workflow](https://github.co
 
 ## Requirements
 
-- Python 3.x (automatically installed by the action)
+- `structkit` on `PATH` (install with [`httpdss/structkit-setup@v1`](https://github.com/httpdss/structkit-setup) first, or any other method)
 - GitHub Actions runner with bash support
 
 ## Configuration file
@@ -230,11 +243,12 @@ This action is designed to work with different versions of StructKit. Some comma
 
 ## How It Works
 
-1. **Setup** - Installs Python and StructKit
-2. **Checkout** - Optionally checks out custom structures repository
-3. **Execute** - Runs the specified StructKit command
-4. **Outputs** - Provides execution results for downstream steps
-5. **Cleanup** - Removes temporary files
+1. **Require StructKit** - Fails with a clear error if `structkit` is not on `PATH`
+2. **Resolve** - Auto-detects `.structkit.yaml` or legacy `.struct.yaml` unless `struct_file` is set
+3. **Checkout** - Optionally checks out a custom structures repository
+4. **Execute** - Runs the specified StructKit command
+5. **Outputs** - Provides execution results for downstream steps
+6. **Cleanup** - Removes temporary files
 
 ## Common Patterns
 
@@ -251,6 +265,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
       - uses: httpdss/structkit-action@v1
         with:
           command: validate
@@ -269,6 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
       - uses: httpdss/structkit-action@v1
         with:
           command: generate
@@ -290,6 +306,7 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v7
+      - uses: httpdss/structkit-setup@v1
 
       - uses: httpdss/structkit-action@v1
         with:
@@ -307,14 +324,14 @@ jobs:
 
 ### Command Not Found
 
-If `structkit` command is not found, ensure Python is properly set up:
+This action does not install StructKit. Add setup first:
 
 ```yaml
-- uses: actions/setup-python@v5
-  with:
-    python-version: '3.x'
+- uses: httpdss/structkit-setup@v1
 - uses: httpdss/structkit-action@v1
 ```
+
+Or install StructKit yourself (pip, uv, etc.) so `structkit` is on `PATH` before this step.
 
 ### Permission Denied
 
@@ -335,11 +352,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+Apache License 2.0 - see [LICENSE](LICENSE).
 
 ## Related Projects
 
 - [StructKit](https://github.com/httpdss/structkit) - The main StructKit project
+- [structkit-setup](https://github.com/httpdss/structkit-setup) - Install StructKit in GitHub Actions
 - [StructKit Reusable Workflow](https://github.com/httpdss/structkit/blob/main/.github/workflows/struct-generate.yaml) - Full workflow with PR creation
 
 ## Support
