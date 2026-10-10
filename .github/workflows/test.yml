@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 # Switch httpdss/structkit-setup@cursor/add-setup-action-2b3d to @v1 once that
-# action is tagged. Until then this workflow uses the setup PR branch.
+# action is tagged. Until then this workflow uses the setup PR branch
+# (httpdss/structkit-setup#1).
 permissions:
   contents: read
   actions: write
