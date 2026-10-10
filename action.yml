@@ -81,7 +81,7 @@ runs:
       run: |
         if ! command -v structkit >/dev/null 2>&1; then
           echo "::error::structkit is not on PATH. Add a prior step that installs it, for example:"
-          echo "::error::  uses: httpdss/structkit-setup@v1"
+          echo "::error::  uses: httpdss/structkit-setup@v0"
           echo "::error::This action no longer installs Python or StructKit."
           exit 1
         fi

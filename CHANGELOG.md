@@ -11,13 +11,14 @@ All notable changes to this project are documented in this file.
 - Call [`httpdss/structkit-setup`](https://github.com/httpdss/structkit-setup) first when you need StructKit installed:
 
   ```yaml
-  - uses: httpdss/structkit-setup@v1
-  - uses: httpdss/structkit-action@v1
+  - uses: httpdss/structkit-setup@v0
+  - uses: httpdss/structkit-action@v0
     with:
       command: validate
   ```
 
-  If `structkit` is missing, the action fails with an error that points at `uses: httpdss/structkit-setup@v1`.
+  If `structkit` is missing, the action fails with an error that points at `uses: httpdss/structkit-setup@v0`.
+- Docs, examples, and CI pin the published major tags `@v0` (`httpdss/structkit-setup@v0`, then `httpdss/structkit-action@v0`). Show `structkit-version` on setup when you need a specific StructKit release.
 
 ### License
 
