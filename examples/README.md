@@ -20,7 +20,8 @@ cp examples/validate-pr.yml .github/workflows/
 
 ## Customization Tips
 
-- Replace version pins (`@v1`) with specific commit SHAs for production use
+- Add `httpdss/structkit-setup@v0` before this action so `structkit` is on `PATH`
+- Replace version pins (`@v0`) with specific commit SHAs for production use
 - Adjust `struct_file` paths to match your repository structure (default is `.structkit.yaml`; legacy `.struct.yaml` is still auto-detected if you omit the input)
 - Configure branch names and PR settings according to your workflow
 - Add environment-specific secrets if using private structure repositories

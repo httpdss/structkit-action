@@ -6,13 +6,44 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Install StructKit via the published major tag. v0 exists on
+# httpdss/structkit-setup (same commit as v0.0.1).
+permissions:
+  contents: read
+  actions: write
+
 jobs:
+  test-requires-structkit-on-path:
+    name: Test Requires StructKit on PATH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Run without StructKit
+        id: missing
+        continue-on-error: true
+        uses: ./
+        with:
+          command: validate
+
+      - name: Expect PATH error
+        run: |
+          if [[ "${{ steps.missing.outcome }}" != "failure" ]]; then
+            echo "Expected the action to fail when structkit is not on PATH"
+            exit 1
+          fi
+          echo "Missing structkit failed as expected"
+
   test-validate:
     name: Test Validate Command
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Create test structure file
         run: |
@@ -34,6 +65,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Create test structure file
         run: |
@@ -63,6 +97,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Create test structure file
         run: |
@@ -94,6 +131,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up StructKit from git
+        uses: httpdss/structkit-setup@v0
+        with:
+          structkit-version: "https://github.com/httpdss/structkit.git@main"
+
       - name: Create test structure file
         run: |
           cat > .structkit.yaml << 'EOF'
@@ -102,12 +144,11 @@ jobs:
                 content: "Testing version"
           EOF
 
-      - name: Run with git installation
+      - name: Run with git-installed StructKit
         uses: ./
         with:
           command: validate
           struct_file: .structkit.yaml
-          structkit_version: "https://github.com/httpdss/structkit.git@main"
 
   test-validate-structkit-yaml-fixture:
     name: Test Validate .structkit.yaml Fixture
@@ -115,6 +156,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Run validate with .structkit.yaml fixture
         uses: ./
@@ -129,6 +173,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
+
       - name: Run validate with legacy .struct.yaml fixture
         uses: ./
         with:
@@ -141,6 +188,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Place .structkit.yaml at repo root
         run: cp tests/fixtures/structkit-yaml/.structkit.yaml .structkit.yaml
@@ -157,6 +207,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
+
       - name: Place legacy .struct.yaml at repo root
         run: cp tests/fixtures/legacy-struct-yaml/.struct.yaml .struct.yaml
 
@@ -171,6 +224,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Place both default files at repo root
         run: |
@@ -188,6 +244,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up StructKit
+        uses: httpdss/structkit-setup@v0
 
       - name: Run validate without config
         id: validate
